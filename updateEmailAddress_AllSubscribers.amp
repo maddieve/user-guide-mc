@@ -1,0 +1,39 @@
+<script runat="server">
+Platform.Load("Core","1.1.1");
+try{
+</script>
+
+%%[
+ VAR @data, @default
+SET @default = "1"
+set @numRowsToReturn = 0
+ SET @data = LookupOrderedRows("EmailUpdates", @numRowsToReturn,"Id asc", "Default", @default)
+VAR @rowCount
+ SET @rowCount = RowCount(@data)
+IF @rowCount > 0 then
+  FOR @i = 1 to @rowCount do
+    VAR @row, @currentId, @emailAddress
+    SET @row = Row(@data,@i)
+    SET @subkey = FIELD(@row,"Id")
+    SET @email = FIELD(@row, "EmailAddress") 
+    
+    /* Update in All Subscribers List */
+
+      
+ 	set @Subscriber = CreateObject("Subscriber")
+     SetObjectProperty(@Subscriber, "SubscriberKey",@subkey)
+     SetObjectProperty(@Subscriber, "EmailAddress",@email)
+
+    IF RowCount(@default) > 0  THEN
+     set @update_email = InvokeUpdate( @Subscriber, @createErrDesc, @createErrNo, @createOpts)
+     
+    ENDIF 
+  NEXT @i 
+ENDIF 
+]%%
+ 
+<script runat="server">
+}catch(e){
+ Write(Stringify(e));
+}
+</script>
